@@ -82,12 +82,12 @@ module Test = struct
 end
 
 let%expect_test "wordpiece" =
-  let module P = Caml.Printf in
+  let module P = Printf in
   let t = Test.create () in
   List.iter
     ~f:(fun str ->
       let tokens = wordpiece t str ~kind:Normal in
-      P.printf "\"%s\"\n%s\n%!" str ([%sexp_of: Token.t list] tokens |> Sexp.to_string_hum))
+      Stdlib.print_endline @@ P.sprintf "\"%s\"\n%s\n%!" str ([%sexp_of: Token.t list] tokens |> Sexp.to_string_hum))
     [ ""; "hello"; "hello1"; "helloworld"; "helloble"; "helloeee"; "unaffable" ];
   [%expect
     {|

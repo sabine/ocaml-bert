@@ -13,11 +13,11 @@ module Tokenizer = Bert_tokenize.Gpt2_tokenizer
 module Vocab = Bert_tokenize.Gpt2_vocab
 
 let _tokenization () =
-  let module Sys = Caml.Sys in
-  if Array.length Sys.argv <> 3
-  then Printf.failwithf "usage: %s vocab.txt merge.txt" Sys.argv.(0) ();
-  Stdio.printf "Loading vocab/merge from %s and %s\n%!" Sys.argv.(1) Sys.argv.(2);
-  let vocab = Vocab.load ~vocab_filename:Sys.argv.(1) ~merge_filename:Sys.argv.(2) in
+  let module Sys = Sys in
+  if Array.length (Sys.get_argv ()) <> 3
+  then Printf.failwithf "usage: %s vocab.txt merge.txt" (Sys.get_argv ()).(0) ();
+  Stdio.printf "Loading vocab/merge from %s and %s\n%!" (Sys.get_argv ()).(1) (Sys.get_argv ()).(2);
+  let vocab = Vocab.load ~vocab_filename:(Sys.get_argv ()).(1) ~merge_filename:(Sys.get_argv ()).(2) in
   let tokenizer = Tokenizer.create vocab ~lower_case:false in
   Stdio.printf "Done loading\n%!";
   List.iter
@@ -33,15 +33,15 @@ let _tokenization () =
     ]
 
 let () =
-  let module Sys = Caml.Sys in
-  if Array.length Sys.argv <> 4
-  then Printf.failwithf "usage: %s weights.ot vocab.txt merge.txt" Sys.argv.(0) ();
+  let module Sys = Sys in
+  if Array.length (Sys.get_argv ()) <> 4
+  then Printf.failwithf "usage: %s weights.ot vocab.txt merge.txt" (Sys.get_argv ()).(0) ();
   let vs = Var_store.create ~name:"db" ~device:Cpu () in
   let model = Model.lm_model vs Model.Config.distilgpt2 in
-  Stdio.printf "Loading weights from %s\n%!" Sys.argv.(1);
-  Serialize.load_multi_ ~named_tensors:(Var_store.all_vars vs) ~filename:Sys.argv.(1);
-  Stdio.printf "Loading vocab/merge from %s and %s\n%!" Sys.argv.(2) Sys.argv.(3);
-  let vocab = Vocab.load ~vocab_filename:Sys.argv.(2) ~merge_filename:Sys.argv.(3) in
+  Stdio.printf "Loading weights from %s\n%!" (Sys.get_argv ()).(1);
+  Serialize.load_multi_ ~named_tensors:(Var_store.all_vars vs) ~filename:(Sys.get_argv ()).(1);
+  Stdio.printf "Loading vocab/merge from %s and %s\n%!" (Sys.get_argv ()).(2) (Sys.get_argv ()).(3);
+  let vocab = Vocab.load ~vocab_filename:(Sys.get_argv ()).(2) ~merge_filename:(Sys.get_argv ()).(3) in
   let tokenizer = Tokenizer.create vocab ~lower_case:true in
   Stdio.printf "Done loading\n%!";
   let token_ids =

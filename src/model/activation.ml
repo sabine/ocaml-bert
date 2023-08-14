@@ -5,13 +5,13 @@ let gelu_new =
   fun xs ->
     let ys =
       Tensor.(
-        tanh (((pow xs ~exponent:(Scalar.f 3.) * f 0.044715) + xs) * f sqrt_two_over_pi))
+        tanh (((pow xs ~exponent:(Tensor.of_float0 3.) * f 0.044715) + xs) * f sqrt_two_over_pi))
     in
     Tensor.(xs * f 0.5 * (ys + f 1.))
 
 let gelu xs =
-  let erf = Tensor.erf (Tensor.div1 xs (Scalar.f (Float.sqrt 2.))) in
-  Tensor.mul1 (Tensor.add1 erf (Scalar.f 1.)) (Scalar.f 0.5) |> Tensor.mul xs
+  let erf = Tensor.erf (Tensor.div xs (Tensor.of_float0 (Float.sqrt 2.))) in
+  Tensor.mul (Tensor.add erf (Tensor.of_float0 1.)) (Tensor.of_float0 0.5) |> Tensor.mul xs
 
 let relu = Tensor.relu
 let mish xs = Tensor.(xs * tanh (softplus xs))

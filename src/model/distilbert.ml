@@ -31,14 +31,14 @@ module Attention = struct
       let q = Layer.forward q_lin query |> split_heads ~batch_size in
       let k = Layer.forward k_lin key |> split_heads ~batch_size in
       let v = Layer.forward v_lin value |> split_heads ~batch_size in
-      let q = Tensor.div1 q (Scalar.float sqrt_dim_per_head) in
+      let q = Tensor.div q (Tensor.of_float0 sqrt_dim_per_head) in
       let scores = Tensor.matmul q (Tensor.transpose k ~dim0:2 ~dim1:3) in
       let scores =
         match mask with
         | None -> scores
         | Some mask ->
           let mask =
-            Tensor.le1 mask (Tensor.add1 (Tensor.zeros_like mask) (Scalar.f 0.1))
+            Tensor.le_tensor mask (Tensor.add (Tensor.zeros_like mask) (Tensor.of_float0 0.1))
             |> Tensor.view ~size:[ batch_size; 1; 1; k_len ]
           in
           Tensor.masked_fill scores ~mask ~value:(Scalar.f Float.neg_infinity)
@@ -222,8 +222,8 @@ module With_mask = struct
       in
       match logits with
       | [ start_logits; end_logits ] ->
-        let start_logits = Tensor.squeeze1 start_logits ~dim:(-1) in
-        let end_logits = Tensor.squeeze1 end_logits ~dim:(-1) in
+        let start_logits = Tensor.squeeze start_logits in (* ~dim:(-1) *)
+        let end_logits = Tensor.squeeze end_logits in (* ~dim:(-1) *)
         start_logits, end_logits
       | _ -> assert false
 end

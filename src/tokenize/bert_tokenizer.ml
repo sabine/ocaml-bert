@@ -882,7 +882,7 @@ let tokenize t ?(include_special_characters = false) str =
   else tokens
 
 let%expect_test "tokenize" =
-  let module P = Caml.Printf in
+  let module P = Stdlib.Printf in
   let t = create (Bert_vocab.Test.create ()) ~lower_case:true in
   List.iter
     ~f:(fun str ->

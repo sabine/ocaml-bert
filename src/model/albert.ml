@@ -107,7 +107,7 @@ let self_attention vs (config : Config.t) =
     let context =
       Tensor.matmul weights value |> Tensor.transpose ~dim0:1 ~dim1:2 |> Tensor.contiguous
     in
-    let context = Tensor.(einsum ~equation:"bfnd,ndh->bfh" [ context; w ] + bs) in
+    let context = Tensor.(einsum ~equation:"bfnd,ndh->bfh" ~path:None [ context; w ] + bs) in
     let ys =
       Tensor.dropout context ~p:config.hidden_dropout_p ~is_training
       |> Layer.forward layer_norm

@@ -59,7 +59,7 @@ let self_attention vs (config : Config.t) =
       | None -> Layer.forward key hidden_states, Layer.forward value hidden_states, mask
     in
     let query = Layer.forward query hidden_states |> split_heads ~batch_size in
-    let query = Tensor.div1 query (Scalar.f sqrt_attention_head_size) in
+    let query = Tensor.div query (Tensor.of_float0 sqrt_attention_head_size) in
     let key = split_heads key ~batch_size in
     let value = split_heads value ~batch_size in
     let scores = Tensor.matmul query (Tensor.transpose key ~dim0:(-1) ~dim1:(-2)) in
@@ -202,7 +202,7 @@ let model vs (config : Config.t) =
             |> Tensor.repeat ~repeats:[ batch_size; seq_len; 1 ]
           in
           let causal_mask =
-            Tensor.le1
+            Tensor.le_tensor
               causal_mask
               (Tensor.unsqueeze seq_ids ~dim:0 |> Tensor.unsqueeze ~dim:(-1))
           in
@@ -210,7 +210,7 @@ let model vs (config : Config.t) =
         else Tensor.unsqueeze mask ~dim:1 |> Tensor.unsqueeze ~dim:1
       | d -> Printf.sprintf "unexpected mask dimension %d" d |> failwith
     in
-    let mask = Tensor.mul1 Tensor.(ones_like mask - mask) (Scalar.f (-10000.0)) in
+    let mask = Tensor.mul Tensor.(ones_like mask - mask) (Tensor.of_float0 (-10000.0)) in
     let encoder_mask =
       match config.is_decoder, encoder_hidden_states with
       | true, Some encoder_hidden_states ->

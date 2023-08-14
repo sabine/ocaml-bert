@@ -31,7 +31,7 @@ module Attention = struct
       let w =
         if scale
         then
-          Tensor.div1 w (List.last_exn v_shape |> Float.of_int |> Float.sqrt |> Scalar.f)
+          Tensor.div w (List.last_exn v_shape |> Float.of_int |> Float.sqrt |> Tensor.of_float0)
         else w
       in
       let nd, ns =
@@ -162,7 +162,7 @@ let model vs config =
       match position_ids with
       | Some position_ids -> position_ids
       | None ->
-        Tensor.arange1
+        Tensor.arange_start
           ~start:(Scalar.i layer_past_len)
           ~end_:(Scalar.i (seq_len + layer_past_len))
           ~options:(T Int64, Var_store.device vs)
